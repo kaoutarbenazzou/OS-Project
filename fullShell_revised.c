@@ -16,20 +16,12 @@ struct jobs{
 
 void * bgProcess(void * file) {
 
-	int status = 0;
-	//Ensures that prompt returns after program is run. 
-	if( fork() != 0) {
-		waitpid(1, &status, 0);
-	}
-
-	else {
-		printf("Thread Reached \n");
+         	printf("Thread Reached \n");
        		char * f =  ((char *)file);
        		char * arguments[] = {f, "anArgument", NULL};
         	char * envp[] = {NULL};
         	execve(f, arguments, envp );
 	}
-}
 
 
 
@@ -52,17 +44,17 @@ int main(int argc, char *argv[]) {
      			if(fileIn[x] ==  '\n') {
 				fileIn[x] = '\0';
 			}
-     
+
 			//Used to detect  'fileName &'.
 			else if( (fileIn[x] == '&' && fileIn[x-1] == ' ') ) {
       				processNum = 1;
      				fileIn[x-1] = '\0'; 
-     
+     /*
 				void * file = &fileIn;
   				pthread_t thread1;
-   				pthread_create(&thread1, NULL, bgProcess, (void*)file);
+   				pthread_create(&thread1, NULL, bgProcess, (void*)file);*/
     			}
-
+                             
      			else {
      				x++;
      			}
@@ -81,11 +73,10 @@ int main(int argc, char *argv[]) {
 		if( pid != 0) {
 
 			//Ensures that prompt returns after program is run. 
-          		if(processNum != 1) {
+                       // if(processNum == 1){}
+			   
 	  			waitpid(pid, &status, 0);
-	  		}
-
-		//printf("Status: %ls \n ", &status); 
+ 
   		}
 
   		else {
@@ -105,7 +96,7 @@ int main(int argc, char *argv[]) {
 				//Background Process
       				case 1:
   				pthread_create(&thread1, NULL, bgProcess, (void*)file);
-  				pthread_exit(&thread1);
+  		//		pthread_exit(&thread1);
   				break;
 
 				//Job Process
