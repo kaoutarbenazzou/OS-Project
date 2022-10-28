@@ -8,33 +8,52 @@
 //Collaborated with Dennis U. & Kaoutar A. 
 
 int jobCount = 0;
+int jobBackup = 0; 
 int pid = 0;
 int status = 0;
-
+int processNum = 0;  
 
 struct jobs{
 	int PID;
 	char Program[32];
 };
 
-void * bgProcess(void * file) 
-     {
-         printf("PID: %d \n ", pid);
-	 waitpid(pid, &status, 0);
-     }
+struct jobs jobList[5]; //Jobs array
 
+
+
+void * bgProcess(void * process) 
+     {
+    int *p = (int*)process;      
+	 waitpid(*p, &status, 0);
+
+
+//    Troubleshooting Code	
+// printf("PID: %d \n ", pid);
+// jobList[jobCount].PID = -22;          
+// jobList[jobBackup].PID = jobList[jobCount].PID;          
+//printf("PID After: %d \n ", jobList[jobCount].PID);
+//          jobCount--; 
+//	 return jobList;
+//	processNum = 0; 
+//  jobCount--; 
+// pthread_exit(&thread1);
+
+     }
 
 
 
 int main(int argc, char *argv[]) {
 
 	char fileIn[32]; 
-	int processNum = 0; 
-	struct jobs jobList[5]; 
+
+//	int processNum = 0; 
+//	struct jobs jobList[5]; 
 
 	// This outer while loop allows for continuous prompting.
+
 	while(1) {
-     		printf("\nPrompt> ");
+     		printf("Prompt> ");
      		fgets(fileIn, 32, stdin);
 		int x = 0;
                
@@ -69,15 +88,15 @@ int main(int argc, char *argv[]) {
    			processNum = 2;
 		}
 
-		strcpy(jobList[jobCount].Program, fileIn); //Adds the name of the input file to the job list 
+		//strcpy(jobList[jobCount].Program, fileIn); //Adds the name of the input file to the job list 
 	
                 pid = fork();   //Initiates Fork
-	        jobList[jobCount].PID = pid;              //Adds the pid of the forked process 
+	        //jobList[jobCount].PID = pid;              //Adds the pid of the forked process 
                 
-                if(jobCount < 6)
-		{
-                   jobCount++;     //Increments jobCount
-		}
+              //  if(jobCount < 6)
+	//	{
+         //          jobCount++;     //Increments jobCount
+	//	}
 
 
 		//Parent Actions
@@ -87,10 +106,17 @@ int main(int argc, char *argv[]) {
 			//Ensures that prompt returns after program is run. 
                         if(processNum  == 1)
 			{
-  			  void * file = &fileIn;
+  			  int * bpid = &pid;
   			  pthread_t thread1;
-			  pthread_create(&thread1, NULL, bgProcess, (void*)file);
-			 // pthread_exit(&thread1);
+                          strcpy(jobList[jobCount].Program, fileIn); //Adds the name of the input file to the job list 
+	                  jobList[jobCount].PID = pid;              //Adds the pid of the forked process 
+		          pthread_create(&thread1, NULL, bgProcess, (void*)bpid);
+		        
+			jobBackup = jobCount;    
+                          jobCount++;     //Increments jobCount
+
+
+		        // pthread_exit(&thread1);
 		        }
                         else
 		        { 
@@ -104,7 +130,7 @@ int main(int argc, char *argv[]) {
 		        if(processNum != 2)
                         {
 			        //Foreground process
-				printf("FOREGROUND\n"); 
+			//	printf("FOREGROUND\n"); 
   			        char * envp[] = {NULL};
                                 char * arguments[] = {fileIn, NULL, NULL}; 
 				execve(fileIn, arguments, envp );
@@ -113,10 +139,14 @@ int main(int argc, char *argv[]) {
 		        {
 				//Job Process
     				printf("PID   Program \n");
-  				for(int i = 0; i < sizeof(jobList); i++)
-				{
+  				for(int i = 0; i < jobCount; i++)
+				{ 
+				   if(jobList[i].PID > 0)
+				   {
       			           printf("%d HELLOOOOOOO  %s \n", jobList[i].PID, jobList[i].Program);
-			        }
+			           }
+				
+				}
 
 	          	}
 
