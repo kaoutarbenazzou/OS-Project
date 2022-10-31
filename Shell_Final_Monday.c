@@ -6,6 +6,7 @@
 int c, status = 0;
 int pidList[5];
 char programList[5][32];
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void *background(void *pid)
 {
@@ -17,7 +18,9 @@ void *background(void *pid)
         pidList[i] = pidList[i + 1];
         strcpy(programList[i], programList[i + 1]);
     }
+    pthread_mutex_lock(&mutex);
     c--;
+    pthread_mutex_unlock(&mutex);
     return pid;
 }
 
