@@ -4,13 +4,20 @@
 #include <pthread.h>
 #include <string.h>
 int c, status = 0;
+int pidList[5];
+char programList[5][32];
 
 void *background(void *pid)
 {
     int status = 0;
     int *pidf = (int *)pid;
     waitpid(*pidf, &status, 0);
-    c--; // remove process from table once finished
+    for (int i = 0; i < c; i++)
+    {
+        pidList[i] = pidList[i + 1];
+        strcpy(programList[i], programList[i + 1]);
+    }
+    c--;
     return pid;
 }
 
@@ -18,8 +25,6 @@ int main(int argc, char *argv[])
 {
     char buffer[32];
     // struct job job[5];
-    int pidList[5];
-    char programList[5][32];
     int i, j, flag, pid;
     pthread_t thread;
 
@@ -56,15 +61,14 @@ int main(int argc, char *argv[])
         {
             pid = fork();
             if (pid != 0)
-            {
+            { // parent
+                // wait when there is no &  meaning flag is 0
                 if (flag == 0)
-                { // process runs in foreground
-
+                {                             // process runs in foreground
                     waitpid(pid, &status, 0); // we wait for process to complete before we prompt the shell again
                 }
                 else
                 {
-
                     // add table
                     pidList[c] = pid;
                     strcpy(programList[c], buffer);
