@@ -7,5 +7,6 @@
 
 In CMD: 
    From Server:  scp username@mopsdev.bw.edu:\~/fileName ./Desktop/ 
-   \n To Server:  scp ./Dektop/fileName username@mopsdev.bw.edu:~/       
+   
+   To Server:  scp ./Dektop/fileName username@mopsdev.bw.edu:~/       
 
