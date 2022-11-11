@@ -28,12 +28,10 @@ void closeConnection() {
 
 // File command functions (Denny U.):
 // Assigned to Dennis Ulichney.
-void save(char recieveLine[]) {
-	int file_server_connection, c = 5;
-	char write_command[BUF_SIZE];
+void save(char receiveLine[]) {
+	int file_server_connection;
+	char sendLine[BUF_SIZE];
 
-
-	// Establish a connection to the file server:
 	
 	// Creates a new socket:
    	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -41,11 +39,15 @@ void save(char recieveLine[]) {
     	bzero(&serverAddress, sizeof(serverAddress));
     	serverAddress.sin_family = AF_INET;
 	
+
     	// INADDR_ANY means we will listen to any address
     	// htonl and htons converts address/ports to network formats
     	serverAddress.sin_addr.s_addr = htonl(INADDR_ANY);
+
+	// TODO: Should I replace RESOURCE_SERVER_PORT with the port number of the file server?
     	serverAddress.sin_port = htons(RESOURCE_SERVER_PORT);
 		
+
     	// Bind to port
     	if (bind(serverSocket, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) == -1) {
         	printf("Unable to bind to port just yet, perhaps the connection has to be timed out\n");
@@ -56,16 +58,15 @@ void save(char recieveLine[]) {
 
 
 	// Write the save file command to the file server:
-	write_command[0, 1, 2, 3, 4] = ["w", "r", "i", "t", "e"];
+	snprintf(sendLine, sizeof(sendLine), "write");
 
-	for(int i = 4; strcmp(recieveLine[i], "\0") != 0; i++) {
-		write_command[c] = recieveLine[i];
-		c++;
+	for(int i = 4; strcmp(receiveLine[i], "\0") != 0; i++) {
+		snprintf(sendLine, sizeof(sendLine), recieveLine[i]);
 	}
 
 
 	// Sends the save file command to the file server:
-	
+	write(serverSocket, sendLine, strln(sendLine));
 	
 }
 
