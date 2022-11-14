@@ -13,7 +13,8 @@ In CMD:
 
 # Test network connection
 
-nc -l portNum   (Remember to only use your port number)
+Receive : nc -l portNum   (Remember to only use your port number)
+Send : nc localhost portNum   (Remember to only use your port number)
 
 Sonny - PortNumber = 1089
 Kaoutar - PortNumber = 1080
