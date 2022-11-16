@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <signal.h>
 
-#define SERVER_PORT 1089 // 108x port ranvge
+#define SERVER_PORT 1085 // 108x port ranvge
 #define BUF_SIZE 256
 
 // We make this a global so that we can refer to it in our signal handler
