@@ -31,7 +31,7 @@ void closeConnection() {
 // File command functions (Denny U.):
 // Assigned to Dennis Ulichney.
 void save(char receiveLine[]) {
-
+/*
 	int file_server_connection;
 	char sendLine[BUF_SIZE];
 
@@ -71,7 +71,7 @@ void save(char receiveLine[]) {
 
 	// Sends the save file command to the file server:
 	write(serverSocket, sendLine, strlen(sendLine));
-	
+*/	
 }
 
 
@@ -105,7 +105,7 @@ void delete(char receiveLine[]) {
 // The thread function seems like it is meant to handle recieving and sending messages to the other components (Denny U.).
 void * processClientRequest(void * request) {
     
-    int connectionToClient = *((int *)request);  
+    int connectionToClient = *(int *)request;  
 
     char receiveLine[BUF_SIZE];
     char sendLine[BUF_SIZE];
@@ -114,7 +114,7 @@ void * processClientRequest(void * request) {
 
 
     // Read the request that the client has
-    while ( (bytesReadFromClient == read(connectionToClient, receiveLine, BUF_SIZE)) > 0){
+    while ( (bytesReadFromClient = read(connectionToClient, receiveLine, BUF_SIZE)) > 0){
         
 	// Need to put a NULL string terminator at end
         receiveLine[bytesReadFromClient] = 0;
@@ -124,6 +124,7 @@ void * processClientRequest(void * request) {
 
 	
 	// Check for command from client (Denny U.):
+	/*
 	if (strstr(receiveLine, "save") != NULL) {
 		save(receiveLine);
 	}
@@ -136,16 +137,17 @@ void * processClientRequest(void * request) {
 		delete(receiveLine);
 	}
 
-	else 
+	else
 	{
 	strcpy(sendLine, "Please enter a valid comand.");
 	//	sendLine[] = tester;
 
 	}
-
+*/
       
         // Print text out to buffer, and then write it to client (connfd)
-        snprintf(sendLine, sizeof(sendLine), "true");
+       printf("Printing!!!!\n");
+       snprintf(sendLine, sizeof(sendLine), "true");
       
         printf("Sending %s\n", sendLine);
         write(connectionToClient, sendLine, strlen(sendLine));
@@ -201,19 +203,20 @@ int main(int argc, char *argv[]) {
 
 	// Updates thread limit:
 	int thread_limit = get_nprocs() * 2;
+            printf("NPROCS OUT: %d\n", thread_limit); 
 
-
-	if(thread_count < thread_limit) {
-		thread_count++;
+//	if(thread_count < thread_limit) {
+//		thread_count++;
 
         	// Kick off a thread to process request
         	pthread_t someThread;
         	pthread_create(&someThread, NULL, processClientRequest, (void *)&connectionToClient);
-	}
+//	}
 
-	else {
+//	else {
 		// TODO: How can I inform the client that the thread limit has been reached?
-	}
+//	printf("Thread Limit Reached\n"); 
+//	}
     }
 }
 
