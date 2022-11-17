@@ -17,6 +17,9 @@
 int serverSocket;
 int thread_count; 
 
+
+char sendLine[BUF_SIZE];
+
 /*
  We need to make sure we close the connection on signal received, otherwise we have to wait
  for server to timeout.
@@ -48,7 +51,8 @@ void save(char receiveLine[]) {
     	serverAddress.sin_addr.s_addr = htonl(INADDR_ANY);
 
 	// TODO: Should I replace RESOURCE_SERVER_PORT with the port number of the file server?
-    	serverAddress.sin_port = htons(RESOURCE_SERVER_PORT);
+	// Yes, I assigned 1085 to the file server (Sonny S) 
+    	serverAddress.sin_port = htons(1085);
 		
 
     	// Bind to port
@@ -63,10 +67,10 @@ void save(char receiveLine[]) {
 	// Write the save file command to the file server:
 	snprintf(sendLine, sizeof(sendLine), "write");
 
-//	for(int i = 4; strcmp(receiveLine[i], "\0") != 0; i++) {
+	for(int i = 4; strcmp(receiveLine[i], "\0") != 0; i++) {
 		//Sends the file data to the server? 
-//		snprintf(sendLine, sizeof(sendLine), receiveLine[i]);
-//	}
+		snprintf(sendLine, sizeof(sendLine), receiveLine[i]);
+	}
 
 
 	// Sends the save file command to the file server:
@@ -78,21 +82,41 @@ void save(char receiveLine[]) {
 // Assigned to Sonny Smith.
 void read_file(char receiveLine[]) {
 
-/*
-	char filename[BUF_SIZE];
+   	char filename[BUF_SIZE];
+//        char sendLine[BUF_SIZE];
 	int i = 6, c = 0;
-
 	
-	/ Gets the name of the file:
-	while(strcmp(receiveLine[i], " ") != 0) {
-		filename[c] = receiveLine[i];
-		c++;
-		i++;
+	
+	// Gets the name of the file:
+//	while(strcmp(receiveLine[i], " ") == 0) {
+//		filename[c] = receiveLine[i];
+//		c++;
+//		i++;
+//	}
+//	int receive_size = sizeof(receiveLine) / sizeof(receiveLine[0]); 
+ 	int receive_size = strlen(receiveLine);
+//	printf("Receive SIZE %d\n", receive_size);
+	//printf("Alternate %d", strlen(receiveLine) );
+/*
+	for(int i = 0; i < receive_size; i++)
+	{
+		if(receiveLine[i] == 'd')
+		{
+		c = i+2;
+		i = receive_size;  
+		}
 	}
 
+	for(int i = c; c < receive_size; c++)
+	{
+		filename[c] = receiveLine[c]; 
 
-	sendLine = // Put the feedback for the client here.
+	}
 */
+   
+     snprintf(sendLine, sizeof(sendLine), "fileSize %d:Contents", receive_size);
+//	sendLine = // Put the feedback for the client here.
+
 }
 
 
@@ -108,7 +132,7 @@ void * processClientRequest(void * request) {
     int connectionToClient = *(int *)request;  
 
     char receiveLine[BUF_SIZE];
-    char sendLine[BUF_SIZE];
+  // char sendLine[BUF_SIZE];   //Changed to global
     
     int bytesReadFromClient = 0;
 
@@ -116,6 +140,7 @@ void * processClientRequest(void * request) {
     // Read the request that the client has
     while ( (bytesReadFromClient = read(connectionToClient, receiveLine, BUF_SIZE)) > 0){
         
+
 	// Need to put a NULL string terminator at end
         receiveLine[bytesReadFromClient] = 0;
         
@@ -124,32 +149,33 @@ void * processClientRequest(void * request) {
 
 	
 	// Check for command from client (Denny U.):
-	/*
-	if (strstr(receiveLine, "save") != NULL) {
+
+	if (strstr(receiveLine, "save ") != NULL) {
 		save(receiveLine);
 	}
 
-	else if (strstr(receiveLine, "read") != NULL) {
+	else if (strstr(receiveLine, "read ") != NULL) {
 		read_file(receiveLine);
+	
 	}
 
-	else if (strstr(receiveLine, "delete") != NULL) {
+	else if (strstr(receiveLine, "delete ") != NULL) {
 		delete(receiveLine);
+		
 	}
 
 	else
 	{
 	strcpy(sendLine, "Please enter a valid comand.");
-	//	sendLine[] = tester;
+
 
 	}
-*/
+
       
         // Print text out to buffer, and then write it to client (connfd)
-       printf("Printing!!!!\n");
-       snprintf(sendLine, sizeof(sendLine), "true");
+//       snprintf(sendLine, sizeof(sendLine), "true");  //Remove so that read,save, or delete functions handle output to client
       
-        printf("Sending %s\n", sendLine);
+        printf("Sending: %s\n", sendLine); 
         write(connectionToClient, sendLine, strlen(sendLine));
         
         // Zero out the receive line so we do not get artifacts from before
@@ -203,20 +229,19 @@ int main(int argc, char *argv[]) {
 
 	// Updates thread limit:
 	int thread_limit = get_nprocs() * 2;
-            printf("NPROCS OUT: %d\n", thread_limit); 
 
-//	if(thread_count < thread_limit) {
-//		thread_count++;
+	if(thread_count < thread_limit) {
+		thread_count++;
 
         	// Kick off a thread to process request
         	pthread_t someThread;
         	pthread_create(&someThread, NULL, processClientRequest, (void *)&connectionToClient);
-//	}
+	}
 
-//	else {
+	else {
 		// TODO: How can I inform the client that the thread limit has been reached?
-//	printf("Thread Limit Reached\n"); 
-//	}
+	printf("Thread Limit Reached\n"); 
+	}
     }
 }
 
