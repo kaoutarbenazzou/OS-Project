@@ -82,9 +82,9 @@ void save(char receiveLine[]) {
 // Assigned to Sonny Smith.
 void read_file(char receiveLine[]) {
 
-   	char filename[BUF_SIZE];
+   	char filename[BUF_SIZE - 6 ];
 //        char sendLine[BUF_SIZE];
-	int i = 6, c = 0;
+	int receive_size;
 	
 	
 	// Gets the name of the file:
@@ -94,8 +94,6 @@ void read_file(char receiveLine[]) {
 //		i++;
 //	}
 //	int receive_size = sizeof(receiveLine) / sizeof(receiveLine[0]); 
- 	int receive_size = strlen(receiveLine);
-//	printf("Receive SIZE %d\n", receive_size);
 	//printf("Alternate %d", strlen(receiveLine) );
 /*
 	for(int i = 0; i < receive_size; i++)
@@ -105,16 +103,19 @@ void read_file(char receiveLine[]) {
 		c = i+2;
 		i = receive_size;  
 		}
-	}
+	}*/
 
-	for(int i = c; c < receive_size; c++)
+ receive_size = strlen(receiveLine);
+	for(int i = 0; (i+5) < receive_size; i++)
 	{
-		filename[c] = receiveLine[c]; 
+		filename[i] = receiveLine[i+5]; 
 
 	}
-*/
-   
-     snprintf(sendLine, sizeof(sendLine), "fileSize %d:Contents", receive_size);
+ 
+ //receive_size = strlen(sendLine);
+     snprintf(sendLine, sizeof(sendLine), ":%s",filename);
+
+    // snprintf(sendLine, sizeof(sendLine), "%d:%s", receive_size, filename);
 //	sendLine = // Put the feedback for the client here.
 
 }
