@@ -18,8 +18,9 @@ int serverSocket;
 int thread_count; 
 
 
-char sendLine[BUF_SIZE];
-
+char sendLine[BUF_SIZE];  //Used for the client/dispatcher connection
+char sendLine2[BUF_SIZE]; //Used for the dispatcher/memory server connection(if needed)  
+char sendLine3[BUF_SIZE]; //Used for the dispatcher/file server connection (if needed) 
 /*
  We need to make sure we close the connection on signal received, otherwise we have to wait
  for server to timeout.
@@ -82,9 +83,9 @@ void save(char receiveLine[]) {
 // Assigned to Sonny Smith.
 void read_file(char receiveLine[]) {
 
-   	char filename[BUF_SIZE - 6 ];
+   	char filename[BUF_SIZE - 5];
 //        char sendLine[BUF_SIZE];
-	int receive_size;
+//	int receive_size;
 	
 	
 	// Gets the name of the file:
@@ -105,15 +106,21 @@ void read_file(char receiveLine[]) {
 		}
 	}*/
 
- receive_size = strlen(receiveLine);
-	for(int i = 0; (i+5) < receive_size; i++)
+// receive_size = strlen(receiveLine);
+	for(int i = 0; (i+5) < (BUF_SIZE - 5) - 1 ; i++)  //Retrieves the filename without the nullterminator
 	{
+		if(receiveLine[i+5] == '\0' || receiveLine[i+5] == ' ' || receiveLine[i+5] == '\n'  ) 
+		{
+		break; 
+		}
+		else
+		{
 		filename[i] = receiveLine[i+5]; 
-
+		}
 	}
- 
+//receive_size = strlen(filename);
  //receive_size = strlen(sendLine);
-     snprintf(sendLine, sizeof(sendLine), ":%s",filename);
+     snprintf(sendLine, sizeof(sendLine), "%ld:%s", strlen(filename) ,filename);
 
     // snprintf(sendLine, sizeof(sendLine), "%d:%s", receive_size, filename);
 //	sendLine = // Put the feedback for the client here.
@@ -181,7 +188,8 @@ void * processClientRequest(void * request) {
         
         // Zero out the receive line so we do not get artifacts from before
         bzero(&receiveLine, sizeof(receiveLine));
-        close(connectionToClient);
+
+      close(connectionToClient);
     }
 
     thread_count--;
