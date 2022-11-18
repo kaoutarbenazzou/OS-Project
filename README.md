@@ -19,3 +19,6 @@ Send : nc localhost portNum   (Remember to only use your port number)
 Sonny - PortNumber = 1089
 Kaoutar - PortNumber = 1080
 Dennis - PortNumber = 1081
+
+File Server - Port Number = 1085      
+Memory Server - Port Number = 1084 
