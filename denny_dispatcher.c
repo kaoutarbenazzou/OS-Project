@@ -97,43 +97,39 @@ void save(char * receiveLine) {
 
 
 // Assigned to Sonny Smith.
-void read_file(char * receiveLine) {
+void read_file(char receiveLine[]) {
 
-   	char filename[BUF_SIZE - 6 ];
-//        char sendLine[BUF_SIZE];
-	int receive_size;
-	
-	
-	// Gets the name of the file:
-//	while(strcmp(receiveLine[i], " ") == 0) {
-//		filename[c] = receiveLine[i];
-//		c++;
-//		i++;
-//	}
-//	int receive_size = sizeof(receiveLine) / sizeof(receiveLine[0]); 
-	//printf("Alternate %d", strlen(receiveLine) );
-/*
-	for(int i = 0; i < receive_size; i++)
+   	char filename[BUF_SIZE - 5];
+
+	for(int i = 0; (i+5) < (BUF_SIZE - 5) - 1 ; i++)  //Retrieves the filename without the nullterminator
 	{
-		if(receiveLine[i] == 'd')
+		if(receiveLine[i+5] == '\0' || receiveLine[i+5] == ' ' || receiveLine[i+5] == '\n'  ) 
 		{
-		c = i+2;
-		i = receive_size;  
+		break; 
 		}
-	}*/
-
- receive_size = strlen(receiveLine);
-	for(int i = 0; (i+5) < receive_size; i++)
-	{
+		else
+		{
 		filename[i] = receiveLine[i+5]; 
-
+		}
 	}
- 
- //receive_size = strlen(sendLine);
-     snprintf(sendLine, sizeof(sendLine), ":%s",filename);
+/*   WIP
+	if(clientSend(1084, sendLine, NULL) != NULL)
+	{	
+	//	filename = response;
+	}
+	else if( clientSend(1085, sendLine, NULL) != NULL)
+	{
+		//filename = response;	
+	}
+	else
+	{
+	printf("Error file not found!");
+	}
+*/
+     snprintf(sendLine, sizeof(sendLine), "%ld:%s", strlen(filename) ,filename); //Sends a response to the client 
 
     // snprintf(sendLine, sizeof(sendLine), "%d:%s", receive_size, filename);
-//	sendLine = // Put the feedback for the client here.
+//	sendLine = // Put the feedback for the client here??(May be redundant).
 
 }
 
