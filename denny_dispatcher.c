@@ -17,8 +17,8 @@
 int serverSocket;
 int thread_count; 
 
-
-char sendLine[BUF_SIZE];
+char errLine[BUF_SIZE]; //Used to send error messages to client 
+//char sendLine[BUF_SIZE]; //  Changed to local variable within save, read, and delete 
 
 /*
  We need to make sure we close the connection on signal received, otherwise we have to wait
@@ -58,7 +58,8 @@ int clientSend(int portNumber, char * message, char * response) {
 
 
 	// Connects to server:
-	if (connect(serverSocket, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) < 0){
+	if (connect(serverSocket, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) < 0)
+	{
 		printf("Unable to connect to server.\n");
 	}
 
@@ -69,6 +70,9 @@ int clientSend(int portNumber, char * message, char * response) {
 
 	// Fills out the response string:
 	// TODO: Add an if-then statement to check if the response pointer is NULL.
+	response = "Responding";
+	printf("Responding: %s\n", response);	
+
 }
 
 
@@ -76,7 +80,8 @@ int clientSend(int portNumber, char * message, char * response) {
 
 // File command functions (Denny U.):
 // Assigned to Dennis Ulichney.
-void save(char * receiveLine) {
+void save(char * receiveLine)
+{
 
 	int receiveEnd = strlen(receiveLine) - 1, c = 0;
 	char fileInfo[BUF_SIZE - 6], sendLine[BUF_SIZE];
@@ -97,19 +102,20 @@ void save(char * receiveLine) {
 
 
 // Assigned to Sonny Smith.
-void read_file(char receiveLine[]) {
+void read_file(char receiveLine[])
+{
 
-   	char filename[BUF_SIZE - 5];
+   	char fileLine[BUF_SIZE], sendLine[BUF_SIZE]; 
 
-	for(int i = 0; (i+5) < (BUF_SIZE - 5) - 1 ; i++)  //Retrieves the filename without the nullterminator
+	for(int i = 0; i < (BUF_SIZE) - 1; i++)  //Removes the newline character from the filename
 	{
-		if(receiveLine[i+5] == '\0' || receiveLine[i+5] == ' ' || receiveLine[i+5] == '\n'  ) 
+		if(receiveLine[i] == '\n')// || //receiveLine[i+5] == ' ' || receiveLine[i+5] == '\0'  ) 
 		{
 		break; 
 		}
 		else
 		{
-		filename[i] = receiveLine[i+5]; 
+		fileLine[i] = receiveLine[i]; 
 		}
 	}
 /*   WIP
@@ -126,16 +132,19 @@ void read_file(char receiveLine[]) {
 	printf("Error file not found!");
 	}
 */
-     snprintf(sendLine, sizeof(sendLine), "%ld:%s", strlen(filename) ,filename); //Sends a response to the client 
+	clientSend(1085, fileLine, sendLine); 	
+     snprintf(sendLine, sizeof(sendLine), "%s", sendLine); //Sends a response to the client 
 
-    // snprintf(sendLine, sizeof(sendLine), "%d:%s", receive_size, filename);
-//	sendLine = // Put the feedback for the client here??(May be redundant).
+    // snprintf(sendLine, sizeof(sendLine), "%d:%s", receive_size, filename); 
 
 }
 
 
 // Assigned to Kaoutar Ben Azzou.
-void delete(char * receiveLine) {
+void delete(char * receiveLine)
+{
+
+char sendLine[BUF_SIZE];  //Variable used with snprintf to respond to client
 
 }
 
@@ -146,7 +155,8 @@ void * processClientRequest(void * request) {
     int connectionToClient = *(int *)request;  
 
     char receiveLine[BUF_SIZE];
-  // char sendLine[BUF_SIZE];   //Changed to global
+  // char sendLine[BUF_SIZE];   //Changed to local in save/read/delete
+  strcpy(errLine, "DEFAULT");
     
     int bytesReadFromClient = 0;
 
@@ -170,24 +180,23 @@ void * processClientRequest(void * request) {
 
 	else if (strstr(receiveLine, "read ") != NULL) {
 		read_file(receiveLine);
-	
 	}
-
 	else if (strstr(receiveLine, "delete ") != NULL) {
 		delete(receiveLine);
-		
 	}
 
 	else {
-		strcpy(sendLine, "Please enter a valid comand.");
+		strcpy(errLine, "Please enter a valid comand.");
+	        write(connectionToClient, errLine, strlen(errLine)); 
 	}
 
+	//	snprintf(errLine, sizeof(errLine), "%s", errLine);
       
         // Print text out to buffer, and then write it to client (connfd)
 //       snprintf(sendLine, sizeof(sendLine), "true");  //Remove so that read,save, or delete functions handle output to client
       
-        printf("Sending: %s\n", sendLine); 
-        write(connectionToClient, sendLine, strlen(sendLine));
+//        printf("Sending: %s\n", errLine);  //Only needed for troubleshooting 
+//       write(connectionToClient, errLine, strlen(errLine)); //Redundant if used in save/read/delete.
         
         // Zero out the receive line so we do not get artifacts from before
         bzero(&receiveLine, sizeof(receiveLine));
@@ -214,7 +223,8 @@ int main(int argc, char *argv[]) {
     serverAddress.sin_port        = htons(RESOURCE_SERVER_PORT);
     
     // Bind to port
-    if (bind(serverSocket, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) == -1) {
+    if (bind(serverSocket, (struct sockaddr *) &serverAddress, sizeof(serverAddress)) == -1)
+    {
         printf("Unable to bind to port just yet, perhaps the connection has to be timed out\n");
         exit(-1);
     }
@@ -229,7 +239,8 @@ int main(int argc, char *argv[]) {
     // Listen and queue up to 10 connections
     listen(serverSocket, 10);
     
-    while (1) {
+    while (1) 
+    {
         /*
          Accept connection (this is blocking)
          2nd parameter you can specify connection
@@ -241,7 +252,8 @@ int main(int argc, char *argv[]) {
 	// Updates thread limit:
 	int thread_limit = get_nprocs() * 2;
 
-	if(thread_count < thread_limit) {
+	if(thread_count < thread_limit) 
+	{
 		thread_count++;
 
         	// Kick off a thread to process request
@@ -249,10 +261,14 @@ int main(int argc, char *argv[]) {
         	pthread_create(&someThread, NULL, processClientRequest, (void *)&connectionToClient);
 	}
 
-	else {
-		// TODO: How can I inform the client that the thread limit has been reached?
+	else 
+	{
+		// TODO: How can I inform the client that the thread limit has been reached?    
 	printf("Thread Limit Reached\n"); 
+        strcpy(errLine, "Thread Limit Reached\n"); 
+	write(connectionToClient, errLine, strlen(errLine));   // TODO: Test if thread limit correctly informs client
 	}
+
     }
 }
 
