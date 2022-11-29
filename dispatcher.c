@@ -19,7 +19,7 @@ int serverSocket;
 int thread_count; 
 
 
-//char sendLine[BUF_SIZE];
+//char sendLine[BUF_SIZE]; //change size?
 
 /*
  We need to make sure we close the connection on signal received, otherwise we have to wait
