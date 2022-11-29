@@ -188,9 +188,9 @@ void delete(char receiveLine[]) {
 //printf( "rm %s", filename);
 //snprintf(sendLine, sizeof(sendLine), "rm %s", filename);
 snprintf(sendLine1, sizeof(sendLine1), "delete %s", filename);
-clientSend(1080,sendLine1,NULL);
+clientSend(1081,sendLine1,NULL);
 snprintf(sendLine2, sizeof(sendLine2), "rm %s", filename);
-clientSend(1080,sendLine2,NULL); //only the last line that prints
+clientSend(1081,sendLine2,NULL); //only the last line that prints
 }
 
 
