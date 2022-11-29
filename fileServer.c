@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <signal.h>
 
-#define SERVER_PORT 1085 // 108x port ranvge
+#define SERVER_PORT 1085// 108x port ranvge
 #define BUF_SIZE 256
 
 // We make this a global so that we can refer to it in our signal handler
@@ -71,12 +71,31 @@ int main(int argc, char *argv[]) {
             receiveLine[bytesReadFromClient] = 0;
             
             // Show what client sent
-            printf("%d:%s\n", bytesReadFromClient, receiveLine);
+            printf("Received: %d:%s\n", bytesReadFromClient, receiveLine);
             
             // Print text out to buffer, and then write it to client (connectionToClient)
-            snprintf(sendLine, sizeof(sendLine), "Received Command \n");
-            write(connectionToClient, sendLine, strlen(sendLine));
-            
+           
+	   if(strstr(receiveLine, "read ") != NULL) //Read Command
+	   {
+		    snprintf(sendLine, sizeof(sendLine), "%s", receiveLine );
+                    write(connectionToClient, sendLine, strlen(sendLine));
+	   }
+	   else if(strstr(receiveLine, "write ") != NULL) //Save Command
+	   {
+	   	    snprintf(sendLine, sizeof(sendLine), "%s", receiveLine );
+                    write(connectionToClient, sendLine, strlen(sendLine));}
+	  /* else if(strstr(receiveLine, "delete ") != NULL )    //Delete Command
+	  {
+
+		    snprintf(sendLine, sizeof(sendLine), "Executed Command %s \n", receiveLine );
+                    write(connectionToClient, sendLine, strlen(sendLine));
+	  } 
+	  */
+	  else{ 
+	  	 snprintf(sendLine, sizeof(sendLine), "File Command Received \n");
+          	  write(connectionToClient, sendLine, strlen(sendLine));
+              }
+
             // Zero out the receive line so we do not get artifacts from before
             bzero(&receiveLine, sizeof(receiveLine));
             close(connectionToClient);
