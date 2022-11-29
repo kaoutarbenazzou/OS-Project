@@ -19,7 +19,7 @@ int serverSocket;
 int thread_count; 
 
 
-char sendLine[BUF_SIZE];
+//char sendLine[BUF_SIZE];
 
 /*
  We need to make sure we close the connection on signal received, otherwise we have to wait
@@ -113,8 +113,7 @@ void save(char * receiveLine) {
 // Assigned to Sonny Smith.
 void read_file(char * receiveLine) {
 
-   	char filename[BUF_SIZE - 6 ];
-//        char sendLine[BUF_SIZE];
+   	char filename[BUF_SIZE - 6 ], char sendLine[BUF_SIZE];
 	int receive_size;
 	
 	
@@ -153,8 +152,9 @@ void read_file(char * receiveLine) {
 
 
 // Assigned to Kaoutar Ben Azzou.
-void delete(char * receiveLine) {
-
+void delete(char * receiveLine) 
+{
+		char sendLine[BUF_SIZE + 10];
 }
 
 
