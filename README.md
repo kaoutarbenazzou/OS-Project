@@ -1,6 +1,6 @@
 # Command to copy files within server: 
             
-    cp /stu/dulichne20/os/fileName fileDestination
+    cp /stu/dulichne20/os/dispatcher.c (desired file name)
 
 
 # SCP - Copy files from server to your computer
