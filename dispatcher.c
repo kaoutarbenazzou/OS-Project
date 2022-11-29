@@ -113,49 +113,53 @@ void save(char * receiveLine) {
 // Assigned to Sonny Smith.
 void read_file(char * receiveLine) {
 
-   	char fileLine[BUF_SIZE], sendLine[BUF_SIZE]; 
-
-	for(int i = 0; i < (BUF_SIZE) - 1; i++)  //Removes the newline character from the filename
+   	char filename[BUF_SIZE - 6 ], char sendLine[BUF_SIZE];
+	int receive_size;
+	
+	
+	// Gets the name of the file:
+//	while(strcmp(receiveLine[i], " ") == 0) {
+//		filename[c] = receiveLine[i];
+//		c++;
+//		i++;
+//	}
+//	int receive_size = sizeof(receiveLine) / sizeof(receiveLine[0]); 
+	//printf("Alternate %d", strlen(receiveLine) );
+/*
+	for(int i = 0; i < receive_size; i++)
 	{
-		if(receiveLine[i] == '\n')// || //receiveLine[i+5] == ' ' || receiveLine[i+5] == '\0'  ) 
+		if(receiveLine[i] == 'd')
 		{
-		break; 
+		c = i+2;
+		i = receive_size;  
 		}
-		else
-		{
-		fileLine[i] = receiveLine[i]; 
-		}
-	}
-/*   WIP
-	if(clientSend(1084, sendLine, NULL) != NULL)
-	{	
-	//	filename = response;
-	}
-	else if( clientSend(1085, sendLine, NULL) != NULL)
-	{
-		//filename = response;	
-	}
-	else
-	{
-	printf("Error file not found!");
-	}
-*/
-	clientSend(1085, fileLine, sendLine); 	
-     snprintf(sendLine, sizeof(sendLine), "%s", sendLine); //Sends a response to the client 
+	}*/
 
-    // snprintf(sendLine, sizeof(sendLine), "%d:%s", receive_size, filename); 
+ receive_size = strlen(receiveLine);
+	for(int i = 0; (i+5) < receive_size; i++)
+	{
+		filename[i] = receiveLine[i+5]; 
+
+	}
+ 
+ //receive_size = strlen(sendLine);
+     snprintf(sendLine, sizeof(sendLine), ":%s",filename);
+
+    // snprintf(sendLine, sizeof(sendLine), "%d:%s", receive_size, filename);
+//	sendLine = // Put the feedback for the client here.
 
 }
 
 
-// Assigned to Kaoutar Ben Azzou.
+// Assigned to Ben Azzou.
 char sendLine1[BUF_SIZE+10];
 char sendLine2[BUF_SIZE+10];
 
 
 void delete(char receiveLine[]) {
 
-  char filename[BUF_SIZE],char * ptr;
+  char filename[BUF_SIZE];
+	char * ptr;
 
         int size = strlen(receiveLine);
         int i,p=0,j;
@@ -180,6 +184,11 @@ void delete(char receiveLine[]) {
 //clientSend(1080,snprintf(sendLine1, sizeof(sendLine), "delete  %s", filename),ptr);
 
 //clientSend(1080,snprintf(sendLine2, sizeof(sendLine), "rm %s", filename),ptr); //only the last line that prints
+snprintf(sendLine1, sizeof(sendLine1), "delete %s", filename);
+clientSend(1080,sendLine1,NULL);
+snprintf(sendLine2, sizeof(sendLine2), "rm %s", filename);
+clientSend(1080,sendLine2,NULL); //only the last line that prints
+
 }
 
 
