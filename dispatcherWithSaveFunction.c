@@ -158,9 +158,41 @@ void read_file(char * receiveLine) {
 
 
 // Assigned to Kaoutar Ben Azzou.
-void delete(char * receiveLine) {
+char sendLine1[BUF_SIZE+10];
+char sendLine2[BUF_SIZE+10];
 
+
+void delete(char receiveLine[]) {
+
+  char filename[BUF_SIZE];
+  char * ptr;
+
+        int size = strlen(receiveLine);
+        int i,p=0,j;
+    for (i=0;i<size;i++){
+        if (receiveLine[i]==' '){
+            break;
+        }
+    }
+    //for (int j=i+1;j<size;j++){
+    j=i+1;
+        while(receiveLine[j]!='\n'){
+            filename[p++]=receiveLine[j++];
+        }
+    filename[j]='\0';
+    //}
+
+
+
+//printf("this is DELETE #(i typed this)\nRECEIVED: %s\n\n",receiveLine);
+//printf( "rm %s", filename);
+//snprintf(sendLine, sizeof(sendLine), "rm %s", filename);
+snprintf(sendLine1, sizeof(sendLine1), "delete %s", filename);
+clientSend(1080,sendLine1,NULL);
+snprintf(sendLine2, sizeof(sendLine2), "rm %s", filename);
+clientSend(1080,sendLine2,NULL); //only the last line that prints
 }
+
 
 
 // The thread function seems like it is meant to handle recieving and sending messages to the other components (Denny U.).
