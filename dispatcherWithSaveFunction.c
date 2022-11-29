@@ -18,7 +18,7 @@
 int serverSocket;
 int thread_count; 
 
-
+char errLine[BUF_SIZE]; //Used to send error messages to client
 //char sendLine[BUF_SIZE];
 
 /*
@@ -118,41 +118,37 @@ void save(char * receiveLine) {
 // Assigned to Sonny Smith.
 void read_file(char * receiveLine) {
 
-   	char filename[BUF_SIZE - 6 ], sendLine[BUF_SIZE];
-//        char sendLine[BUF_SIZE];
-	int receive_size;
-	
-	
-	// Gets the name of the file:
-//	while(strcmp(receiveLine[i], " ") == 0) {
-//		filename[c] = receiveLine[i];
-//		c++;
-//		i++;
-//	}
-//	int receive_size = sizeof(receiveLine) / sizeof(receiveLine[0]); 
-	//printf("Alternate %d", strlen(receiveLine) );
-/*
-	for(int i = 0; i < receive_size; i++)
+   	char fileLine[BUF_SIZE], sendLine[BUF_SIZE]; 
+
+	for(int i = 0; i < (BUF_SIZE) - 1; i++)  //Removes the newline character from the filename
 	{
-		if(receiveLine[i] == 'd')
+		if(receiveLine[i] == '\n')// || //receiveLine[i+5] == ' ' || receiveLine[i+5] == '\0'  ) 
 		{
-		c = i+2;
-		i = receive_size;  
+		break; 
 		}
-	}*/
-
- receive_size = strlen(receiveLine);
-	for(int i = 0; (i+5) < receive_size; i++)
-	{
-		filename[i] = receiveLine[i+5]; 
-
+		else
+		{
+		fileLine[i] = receiveLine[i]; 
+		}
 	}
- 
- //receive_size = strlen(sendLine);
-     snprintf(sendLine, sizeof(sendLine), ":%s",filename);
+/*   WIP
+	if(clientSend(1084, sendLine, NULL) != NULL)
+	{	
+	//	filename = response;
+	}
+	else if( clientSend(1085, sendLine, NULL) != NULL)
+	{
+		//filename = response;	
+	}
+	else
+	{
+	printf("Error file not found!");
+	}
+*/
+	clientSend(1085, fileLine, sendLine); 	
+     snprintf(sendLine, sizeof(sendLine), "%s", sendLine); //Sends a response to the client 
 
-    // snprintf(sendLine, sizeof(sendLine), "%d:%s", receive_size, filename);
-//	sendLine = // Put the feedback for the client here.
+    // snprintf(sendLine, sizeof(sendLine), "%d:%s", receive_size, filename); 
 
 }
 
@@ -234,15 +230,15 @@ void * processClientRequest(void * request) {
 	}
 
 	else {
-		strcpy(sendLine, "Please enter a valid comand.");
+		strcpy(errLine, "Please enter a valid comand.");
 	}
 
       
         // Print text out to buffer, and then write it to client (connfd)
-//       snprintf(sendLine, sizeof(sendLine), "true");  //Remove so that read,save, or delete functions handle output to client
+//       snprintf(errLine, sizeof(errLine), "true");  //Remove so that read,save, or delete functions handle output to client
       
-        printf("Sending: %s\n", sendLine); 
-        write(connectionToClient, sendLine, strlen(sendLine));
+    //    printf("Sending: %s\n", errLine); 
+  //      write(connectionToClient, sendLine, strlen(errLine));
         
         // Zero out the receive line so we do not get artifacts from before
         bzero(&receiveLine, sizeof(receiveLine));
@@ -284,7 +280,8 @@ int main(int argc, char *argv[]) {
     // Listen and queue up to 10 connections
     listen(serverSocket, 10);
     
-    while (1) {
+ while (1) 
+    {
         /*
          Accept connection (this is blocking)
          2nd parameter you can specify connection
@@ -296,7 +293,8 @@ int main(int argc, char *argv[]) {
 	// Updates thread limit:
 	int thread_limit = get_nprocs() * 2;
 
-	if(thread_count < thread_limit) {
+	if(thread_count < thread_limit) 
+	{
 		thread_count++;
 
         	// Kick off a thread to process request
@@ -304,9 +302,12 @@ int main(int argc, char *argv[]) {
         	pthread_create(&someThread, NULL, processClientRequest, (void *)&connectionToClient);
 	}
 
-	else {
-		// TODO: How can I inform the client that the thread limit has been reached?
+	else 
+	{
+		// TODO: How can I inform the client that the thread limit has been reached?    
 	printf("Thread Limit Reached\n"); 
+        strcpy(errLine, "Thread Limit Reached\n"); 
+	write(connectionToClient, errLine, strlen(errLine));   // TODO: Test if thread limit correctly informs client
 	}
     }
 }
