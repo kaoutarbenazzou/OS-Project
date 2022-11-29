@@ -1,3 +1,4 @@
+char sendLine[BUF_SIZE+10];
 void delete(char receiveLine[]) {
 
   char filename[BUF_SIZE];
@@ -21,6 +22,7 @@ void delete(char receiveLine[]) {
 
 //printf("this is DELETE #(i typed this)\nRECEIVED: %s\n\n",receiveLine);
 //printf( "rm %s", filename);
-snprintf(sendLine, sizeof(sendLine), "rm %s", filename);
+//snprintf(sendLine, sizeof(sendLine), "rm %s", filename);
 snprintf(sendLine, sizeof(sendLine), "delete  %s", filename);
+snprintf(sendLine, sizeof(sendLine), "rm %s", filename); //only the last line that prints
 }
