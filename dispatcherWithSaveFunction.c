@@ -11,7 +11,7 @@
 #include <semaphore.h>
 #include <sys/sysinfo.h>
 
-#define RESOURCE_SERVER_PORT 1083 // Change this!
+#define RESOURCE_SERVER_PORT 1089 // Change this!
 #define BUF_SIZE 256
 
 // We make this a global so that we can refer to it in our signal handler
@@ -68,10 +68,10 @@ void clientSend(int portNumber, char * message, char * response) {
 	// Sends message to server:
 	write(serverSocket, message, strlen(message));
 
-
+//printf("Response Before: %s \n", response);    //Used to test server response
 	// Reads server response:
 	if (response != NULL) {
-
+		
 		//TODO: Why is this a while loop instead of an if-then statement?
 		while ((bytesRead = read(serverSocket, response, BUF_SIZE)) > 0) {
 			response[bytesRead] = 0;
@@ -80,7 +80,7 @@ void clientSend(int portNumber, char * message, char * response) {
 		}
 	}
 
-
+//printf("Response After: %s \n", response);   //Used to test server response
 	// Close server connection:
 	close(serverSocket);
 }
@@ -146,6 +146,8 @@ void read_file(char * receiveLine) {
 	}
 */
 	clientSend(1085, fileLine, sendLine); 	
+
+     printf("After client send we have: %s\n ", sendLine);
      snprintf(sendLine, sizeof(sendLine), "%s", sendLine); //Sends a response to the client 
 
     // snprintf(sendLine, sizeof(sendLine), "%d:%s", receive_size, filename); 
@@ -197,7 +199,7 @@ void * processClientRequest(void * request) {
     int connectionToClient = *(int *)request;  
 
     char receiveLine[BUF_SIZE], sendLine[BUF_SIZE];
-  // char sendLine[BUF_SIZE];   //Changed to global
+ 
     
     int bytesReadFromClient = 0;
 
@@ -210,7 +212,7 @@ void * processClientRequest(void * request) {
         receiveLine[bytesReadFromClient] = 0;
         
         // Show what client sent
-        printf("Received: %s\n", receiveLine);
+//        printf("Received: %s\n", receiveLine);
 
 	
 	// Check for command from client (Denny U.):
@@ -231,6 +233,7 @@ void * processClientRequest(void * request) {
 
 	else {
 		strcpy(errLine, "Please enter a valid comand.");
+	        write(connectionToClient, errLine, strlen(errLine));
 	}
 
       
