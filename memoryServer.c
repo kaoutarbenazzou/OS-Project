@@ -66,16 +66,21 @@ int main(int argc, char *argv[]) {
         connectionToClient = accept(serverSocket, (struct sockaddr *) NULL, NULL);
         
         // Read the request that the client has
-        while ( (bytesReadFromClient = read(connectionToClient, receiveLine, BUF_SIZE)) > 0) {
+        while ( (bytesReadFromClient = read(connectionToClient, receiveLine, BUF_SIZE)) > 0)
+	{
             // Need to put a NULL string terminator at end
             receiveLine[bytesReadFromClient] = 0;
             
             // Show what client sent
-            printf("Received: %s\n", receiveLine);
+            printf("Received From Client: %s\n", receiveLine);
             
             // Print text out to buffer, and then write it to client (connectionToClient)
-            snprintf(sendLine, sizeof(sendLine), "Received Command\n");
+        //    snprintf(sendLine, (sizeof(sendLine)+11), "Memory: %s\n", receiveLine);
+          
+	    snprintf(sendLine, (sizeof(sendLine)+ 5),  "0:"); // "%ld:%s", strlen(receiveLine), receiveLine);
+	    printf("Sending to client: %s", sendLine);
             write(connectionToClient, sendLine, strlen(sendLine));
+
             
             // Zero out the receive line so we do not get artifacts from before
             bzero(&receiveLine, sizeof(receiveLine));
