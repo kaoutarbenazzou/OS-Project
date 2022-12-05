@@ -164,13 +164,15 @@ char sendLine2[BUF_SIZE+10];
 
 void delete(char receiveLine[]) {
 
-  char filename[BUF_SIZE];
-  char * ptr;
+  	char filename[BUF_SIZE];
+	char * ptr;
 
         int size = strlen(receiveLine);
         int i,p=0,j;
-    for (i=0;i<size;i++){
-        if (receiveLine[i]==' '){
+    for (i=0;i<size;i++)
+    {
+        if (receiveLine[i]==' ')
+	{
             break;
         }
     }
@@ -178,18 +180,19 @@ void delete(char receiveLine[]) {
 	j=i+1;
 	
 	
- 	while(receiveLine[j]!='\n'){
+ 	while(receiveLine[j]!='\n')
+	{
             filename[p++]=receiveLine[j++];
         }
 	
-    filename[j]='\0';
+	filename[j]='\0';
+  
+	snprintf(sendLine1, sizeof(sendLine1), "delete %s", filename);
+	clientSend(1085,sendLine1,NULL);
 
+	snprintf(sendLine2, sizeof(sendLine2), "rm %s", filename);
+	clientSend(1084,sendLine2,NULL); 
 
-snprintf(sendLine1, sizeof(sendLine1), "delete %s", filename);
-clientSend(1085,sendLine1,NULL);
-
-snprintf(sendLine2, sizeof(sendLine2), "rm %s", filename);
-clientSend(1084,sendLine2,NULL); 
 }
 
 
@@ -238,10 +241,9 @@ void * processClientRequest(void * request) {
 
         // Zero out the receive line so we do not get artifacts from before
   	bzero(&receiveLine, sizeof(receiveLine));
-        thread_count--;
 	close(connectionToClient);
     }
-//    thread_count--;
+    thread_count--;
 }
 
 
@@ -296,11 +298,12 @@ int main(int argc, char *argv[]) {
         	// Kick off a thread to process request
         	pthread_t someThread;
         	pthread_create(&someThread, NULL, processClientRequest, (void *)&connectionToClient);
+		thread_count--; 
 	}
 
 	else 
 	{
-        strcpy(errLine, "Thread Limit Reached\n"); 
+        strcpy(errLine, "Thread Limit Reached!\n"); 
 	}
     }
 }
