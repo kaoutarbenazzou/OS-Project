@@ -192,23 +192,22 @@ void delete(char receiveLine[]) {
             break;
         }
     }
-    //for (int j=i+1;j<size;j++){
-    j=i+1;
-        while(receiveLine[j]!='\n'){
+
+	j=i+1;
+	
+	
+ 	while(receiveLine[j]!='\n'){
             filename[p++]=receiveLine[j++];
         }
+	
     filename[j]='\0';
-    //}
+    }
 
-
-
-//printf("this is DELETE #(i typed this)\nRECEIVED: %s\n\n",receiveLine);
-//printf( "rm %s", filename);
-//snprintf(sendLine, sizeof(sendLine), "rm %s", filename);
 snprintf(sendLine1, sizeof(sendLine1), "delete %s", filename);
-clientSend(1081,sendLine1,NULL);
+clientSend(1085,sendLine1,NULL);
+
 snprintf(sendLine2, sizeof(sendLine2), "rm %s", filename);
-clientSend(1081,sendLine2,NULL); //only the last line that prints
+clientSend(1084,sendLine2,NULL); 
 }
 
 
