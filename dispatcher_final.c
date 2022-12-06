@@ -298,7 +298,6 @@ int main(int argc, char *argv[]) {
         	// Kick off a thread to process request
         	pthread_t someThread;
         	pthread_create(&someThread, NULL, processClientRequest, (void *)&connectionToClient);
-		thread_count--; 
 	}
 
 	else 
